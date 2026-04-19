@@ -1,11 +1,11 @@
+mod data;
+
 use std::{fs::File, io::BufReader};
 
 use pyo3::{exceptions::PyValueError, prelude::*};
 use thiserror::Error;
 
 use data::Item;
-
-mod data;
 
 #[derive(Error, Debug)]
 pub enum ReadError {
@@ -30,7 +30,6 @@ fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
     };
 
     let reader = BufReader::new(file);
-
     let items: Result<Vec<Item>, serde_json::Error> = serde_json::from_reader(reader);
 
     if let Err(e) = items {
@@ -52,6 +51,7 @@ fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
 #[pymodule]
 fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_json, m)?)?;
+    m.add_class::<Item>()?;
 
     Ok(())
 }
