@@ -26,7 +26,7 @@
           pip
           pyright
           ruff
-          black
+          uv
         ]));
 
         rust = with pkgs; (rust-bin.fromRustupToolchainFile ./rust-toolchain.toml);
