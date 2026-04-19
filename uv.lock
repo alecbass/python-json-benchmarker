@@ -57,10 +57,11 @@ dependencies = [
 
 [package.metadata]
 requires-dist = [
-    { name = "maturin", specifier = ">=1.13.1" },
+    { name = "maturin", specifier = ">=1.0,<2.0" },
     { name = "pyright", specifier = ">=1.1.408" },
     { name = "ruff", specifier = ">=0.15.11" },
 ]
+provides-extras = ["dev"]
 
 [[package]]
 name = "ruff"

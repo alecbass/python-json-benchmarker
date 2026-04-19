@@ -1,7 +1,7 @@
 use pyo3::pyclass;
 use serde::{Deserialize, Serialize};
 
-#[pyclass]
+#[pyclass(get_all, set_all)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
     name: String,
