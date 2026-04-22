@@ -41,6 +41,7 @@
         ];
 
         deps = with pkgs; [
+          bash
           direnv
           python
         ] ++ rustDeps ++ editorDeps;
