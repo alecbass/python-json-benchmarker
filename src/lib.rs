@@ -43,11 +43,6 @@ fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
     Ok(items.unwrap())
 }
 
-// #[pyfunction]
-// fn read_json(path: &str) -> PyResult<Vec<Item>> {
-//     read_json_core(path).map_err(PyErr::new(None))
-// }
-
 /// A Python module implemented in Rust. The name of this function must match
 /// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
 /// import the module.
