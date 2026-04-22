@@ -3,6 +3,8 @@ mod data;
 use std::{fs::File, io::BufReader};
 
 use pyo3::{exceptions::PyValueError, prelude::*};
+use pyo3_stub_gen::define_stub_info_gatherer;
+use pyo3_stub_gen_derive::gen_stub_pyfunction;
 use thiserror::Error;
 
 use data::Item;
@@ -22,6 +24,7 @@ impl From<ReadError> for PyErr {
     }
 }
 
+#[gen_stub_pyfunction]
 #[pyfunction]
 fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
     let file = match File::open(path) {
@@ -55,3 +58,6 @@ fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
 
     Ok(())
 }
+
+// Define a function to gather stub information.
+define_stub_info_gatherer!(stub_info);
