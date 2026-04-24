@@ -76,7 +76,7 @@ def main():
     file_path = "output.json"
 
     start_write = perf_counter()
-    generate_random_json(file_path, limit=200000)
+    generate_random_json(file_path, limit=2000000)
     end_write = perf_counter()
     duration_write = end_write - start_write
     print(f"File written to {file_path} after {duration_write}s")
