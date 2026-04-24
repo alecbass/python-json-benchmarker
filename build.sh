@@ -2,5 +2,5 @@
 
 set -euo pipefail
 
-uv run maturin develop --uv
+uv run maturin develop --uv --release
 cargo run --bin stub_gen

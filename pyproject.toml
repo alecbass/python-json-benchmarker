@@ -18,3 +18,8 @@ dev = []
 [build-system]
 requires = ["maturin>=1.0,<2.0"]
 build-backend = "maturin"
+
+[tool.maturin]
+profile = "release" # Or "dev"
+editable-profile = "release" # Or "dev"
+manifest-path = "Cargo.toml" # Build the library only

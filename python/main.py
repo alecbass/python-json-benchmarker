@@ -55,21 +55,21 @@ def generate_random_json(path: str, limit: int = 100) -> None:
     print(f"Written file is {file_size_readable}")
 
 
-def read_with_rust(path: str) -> list[Item]:
-    return read_json(path)
-
-
 def read_with_python(path: str) -> list[Item]:
     items: list[Item] = []
 
     with open(path) as file:
-        contents = file.read().replace("\n", "")
+        contents = file.read()
         data = json.loads(contents)
 
         for item in data:
             items.append(item_from_dict(item))
 
     return items
+
+
+def read_with_rust(path: str) -> list[Item]:
+    return read_json(path)
 
 
 def main():
@@ -82,16 +82,16 @@ def main():
     print(f"File written to {file_path} after {duration_write}s")
 
     start_python = perf_counter()
-    read_with_python(file_path)
+    items = read_with_python(file_path)
     end_python = perf_counter()
     duration_python = end_python - start_python
-    print(f"Python took {duration_python}s to run")
+    print(f"Python read {len(items)} after {duration_python}s")
 
     start_rust = perf_counter()
-    read_with_rust(file_path)
+    items = read_with_rust(file_path)
     end_rust = perf_counter()
     duration_rust = end_rust - start_rust
-    print(f"Rust took {duration_rust}s to run")
+    print(f"Rust read {len(items)} after {duration_rust}s")
 
 
 if __name__ == "__main__":

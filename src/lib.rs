@@ -24,9 +24,26 @@ impl From<ReadError> for PyErr {
     }
 }
 
+pub fn read_json_native(path: &str) -> Result<Vec<Item>, ReadError> {
+    let file = match File::open(path) {
+        Ok(file) => file,
+        Err(e) => return Err(ReadError::IoError(e)),
+    };
+
+    let reader = BufReader::new(file);
+    let items: Result<Vec<Item>, serde_json::Error> = serde_json::from_reader(reader);
+
+    if let Err(e) = items {
+        eprintln!("Error parsing items: {e}");
+        return Err(ReadError::JsonError(e));
+    }
+
+    Ok(items.unwrap())
+}
+
 #[gen_stub_pyfunction]
 #[pyfunction]
-fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
+pub fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
     let file = match File::open(path) {
         Ok(file) => file,
         Err(e) => return Err(ReadError::IoError(e)),
