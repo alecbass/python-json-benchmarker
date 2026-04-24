@@ -55,23 +55,21 @@ def generate_random_json(path: str, limit: int = 100) -> None:
     print(f"Written file is {file_size_readable}")
 
 
-def read_with_rust(path: str) -> None:
-    items = read_json(path)
-
-    # for item in items:
-    #     print(item, type(item))
-    #     print(item.name, item.language, item.id, item.bio, item.version, type(item.name))
+def read_with_rust(path: str) -> list[Item]:
+    return read_json(path)
 
 
-def read_with_python(path: str) -> None:
+def read_with_python(path: str) -> list[Item]:
+    items: list[Item] = []
+
     with open(path) as file:
         contents = file.read().replace("\n", "")
         data = json.loads(contents)
 
-        items: list[Item] = []
-
         for item in data:
             items.append(item_from_dict(item))
+
+    return items
 
 
 def main():
