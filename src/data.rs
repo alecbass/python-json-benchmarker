@@ -1,7 +1,9 @@
 use std::fmt::Display;
 
+use pyo3::types::{PyDict, PySuper, PyTuple};
+use pyo3::{PyTypeInfo, pyfunction};
 use pyo3::{pyclass, pymethods};
-use pyo3_stub_gen_derive::gen_stub_pyclass;
+use pyo3_stub_gen_derive::{gen_stub_pyclass, gen_stub_pymethods};
 use serde::{Deserialize, Serialize};
 
 #[gen_stub_pyclass]
@@ -21,6 +23,7 @@ impl Display for Item {
     }
 }
 
+#[gen_stub_pymethods]
 #[pymethods]
 impl Item {
     #[new]
