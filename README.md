@@ -7,3 +7,9 @@ A benchmarking of reading JSON files with Python vs native code
 * Python: ~3.5s
 * Python (using Rust library): ~1.2s
 * Natively: ~1.0s
+
+# Bibliography
+This feels like a school assignment lol
+
+### Python compilation
+[https://www.geeksforgeeks.org/python/internal-working-of-python/]()
