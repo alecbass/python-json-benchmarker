@@ -90,14 +90,10 @@ pub fn generate_random_json(path: &str, count: i32) -> Result<u64, Error> {
         Ok(details) => details,
         Err(e) => return Err(Error::IoError(e)),
     };
-    println!("Length: {}", file_details.len());
 
     Ok(file_details.len())
 }
 
-/// A Python module implemented in Rust. The name of this function must match
-/// the `lib.name` setting in the `Cargo.toml`, else Python will not be able to
-/// import the module.
 #[pymodule]
 fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_json, m)?)?;
