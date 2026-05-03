@@ -8,11 +8,9 @@ use serde::{Deserialize, Serialize};
 #[pyclass(get_all, frozen, str)]
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Item {
+    id: i32,
     name: String,
-    language: String,
-    id: String,
-    bio: String,
-    version: f32,
+    description: String,
 }
 
 impl Display for Item {
@@ -25,13 +23,11 @@ impl Display for Item {
 #[pymethods]
 impl Item {
     #[new]
-    pub fn new(name: String, language: String, id: String, bio: String, version: f32) -> Self {
+    pub fn new(id: i32, name: String, description: String) -> Self {
         Self {
-            name,
-            language,
             id,
-            bio,
-            version,
+            name,
+            description,
         }
     }
 }

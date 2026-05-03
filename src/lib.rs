@@ -1,33 +1,35 @@
 mod data;
 
-use std::{fs::File, io::BufReader};
+use std::{
+    fs::{File, metadata},
+    io::{BufReader, BufWriter},
+};
 
 use pyo3::{exceptions::PyValueError, prelude::*};
 use pyo3_stub_gen::define_stub_info_gatherer;
 use pyo3_stub_gen_derive::gen_stub_pyfunction;
-use thiserror::Error;
 
 use data::Item;
 
-#[derive(Error, Debug)]
-pub enum ReadError {
-    #[error("Failed to read file")]
+#[derive(thiserror::Error, Debug)]
+pub enum Error {
+    #[error("Failed to read or write file")]
     IoError(#[from] std::io::Error),
 
     #[error("Error parsing JSON")]
     JsonError(#[from] serde_json::Error),
 }
 
-impl From<ReadError> for PyErr {
-    fn from(e: ReadError) -> Self {
+impl From<Error> for PyErr {
+    fn from(e: Error) -> Self {
         PyValueError::new_err(format!("JSON benchmarker error: {e}"))
     }
 }
 
-pub fn read_json_native(path: &str) -> Result<Vec<Item>, ReadError> {
+pub fn read_json_native(path: &str) -> Result<Vec<Item>, Error> {
     let file = match File::open(path) {
         Ok(file) => file,
-        Err(e) => return Err(ReadError::IoError(e)),
+        Err(e) => return Err(Error::IoError(e)),
     };
 
     let reader = BufReader::new(file);
@@ -35,7 +37,7 @@ pub fn read_json_native(path: &str) -> Result<Vec<Item>, ReadError> {
 
     if let Err(e) = items {
         eprintln!("Error parsing items: {e}");
-        return Err(ReadError::JsonError(e));
+        return Err(Error::JsonError(e));
     }
 
     Ok(items.unwrap())
@@ -43,10 +45,10 @@ pub fn read_json_native(path: &str) -> Result<Vec<Item>, ReadError> {
 
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
+pub fn read_json(path: &str) -> Result<Vec<Item>, Error> {
     let file = match File::open(path) {
         Ok(file) => file,
-        Err(e) => return Err(ReadError::IoError(e)),
+        Err(e) => return Err(Error::IoError(e)),
     };
 
     let reader = BufReader::new(file);
@@ -54,10 +56,43 @@ pub fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
 
     if let Err(e) = items {
         eprintln!("Error parsing items: {e}");
-        return Err(ReadError::JsonError(e));
+        return Err(Error::JsonError(e));
     }
 
     Ok(items.unwrap())
+}
+
+#[gen_stub_pyfunction]
+#[pyfunction]
+pub fn generate_random_json(path: &str, count: i32) -> Result<u64, Error> {
+    let file = match File::create(path) {
+        Ok(file) => file,
+        Err(e) => return Err(Error::IoError(e)),
+    };
+
+    let mut writer = BufWriter::new(file);
+    let mut items = Vec::<Item>::with_capacity(count as usize);
+
+    for i in 0..count {
+        let item = Item::new(
+            i,
+            format!("User {i}"),
+            format!("A description for user {i}"),
+        );
+        items.push(item);
+    }
+
+    if let Err(e) = serde_json::to_writer(&mut writer, &items) {
+        return Err(Error::JsonError(e));
+    }
+
+    let file_details = match metadata(path) {
+        Ok(details) => details,
+        Err(e) => return Err(Error::IoError(e)),
+    };
+    println!("Length: {}", file_details.len());
+
+    Ok(file_details.len())
 }
 
 /// A Python module implemented in Rust. The name of this function must match
@@ -66,6 +101,7 @@ pub fn read_json(path: &str) -> Result<Vec<Item>, ReadError> {
 #[pymodule]
 fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_json, m)?)?;
+    m.add_function(wrap_pyfunction!(generate_random_json, m)?)?;
     m.add_class::<Item>()?;
 
     Ok(())
