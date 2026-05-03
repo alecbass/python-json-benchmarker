@@ -107,15 +107,16 @@ def read_with_rust(path: str) -> list[Item]:
 
 def main():
     file_path = "output.json"
+    item_count_to_write = 2000000
 
     start_write = perf_counter()
-    file_size = write_with_rust(file_path, 2000000)
+    file_size = write_with_rust(file_path, item_count_to_write)
     end_write = perf_counter()
     duration_write = end_write - start_write
     print(f"Rust wrote {file_size} to {file_path} after {duration_write}s")
 
     start_write_python = perf_counter()
-    file_size = write_with_python(file_path, 2000000)
+    file_size = write_with_python(file_path, item_count_to_write)
     end_write_python = perf_counter()
     duration_write_python = end_write_python - start_write_python
     print(f"Python wrote {file_size} to {file_path} after {duration_write_python}s")
