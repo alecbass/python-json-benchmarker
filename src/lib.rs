@@ -2,7 +2,7 @@ mod data;
 
 use std::{
     fs::{File, metadata},
-    io::{BufReader, BufWriter},
+    io::{BufReader, BufWriter, Read},
 };
 
 use pyo3::{exceptions::PyValueError, prelude::*};
@@ -64,6 +64,61 @@ pub fn read_json(path: &str) -> Result<Vec<Item>, Error> {
 
 #[gen_stub_pyfunction]
 #[pyfunction]
+pub fn read_rust_chunked(path: &str, limit: i32) -> Result<Vec<Item>, Error> {
+    let file = match File::open(path) {
+        Ok(file) => file,
+        Err(e) => return Err(Error::IoError(e)),
+    };
+
+    let mut reader = BufReader::new(file);
+    let mut buffer = Vec::<u8>::new();
+    let mut is_within_item = false;
+
+    loop {
+        let mut char_buffer = [0; 1];
+        let read_result = reader.read(&mut char_buffer);
+
+        if let Err(e) = read_result {
+            return Err(Error::IoError(e));
+        }
+
+        let is_last = read_result.unwrap() == 0;
+
+        if is_last {
+            break;
+        }
+
+        let byte = char_buffer[0];
+        let char = char::from(byte);
+
+        if char == '{' {
+            is_within_item = true;
+        }
+
+        if !is_within_item {
+            continue;
+        }
+
+        buffer.push(byte);
+
+        if char == '}' {
+            is_within_item = false;
+            let item_json = serde_json::from_slice(&buffer);
+
+            if let Err(e) = item_json {
+                return Err(Error::JsonError(e));
+            }
+
+            let item: Item = item_json.unwrap();
+            buffer.clear();
+        }
+    }
+
+    Ok(vec![])
+}
+
+#[gen_stub_pyfunction]
+#[pyfunction]
 pub fn generate_random_json(path: &str, count: i32) -> Result<u64, Error> {
     let file = match File::create(path) {
         Ok(file) => file,
@@ -98,6 +153,7 @@ pub fn generate_random_json(path: &str, count: i32) -> Result<u64, Error> {
 fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_json, m)?)?;
     m.add_function(wrap_pyfunction!(generate_random_json, m)?)?;
+    m.add_function(wrap_pyfunction!(read_rust_chunked, m)?)?;
     m.add_class::<Item>()?;
 
     Ok(())

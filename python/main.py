@@ -5,7 +5,7 @@ from time import perf_counter
 from typing import Any
 
 import humanize
-from json_benchmarker import read_json, generate_random_json, Item
+from json_benchmarker import read_json, generate_random_json, read_rust_chunked, Item
 
 
 def item_from_dict(data: dict[str, Any]) -> Item:
@@ -117,8 +117,10 @@ def read_python_chunked(path: str, limit: int) -> list[Item]:
                 is_within_item = False
                 item_json = json.loads(buffer)
                 item = item_from_dict(item_json)
-                print("Item", item)
+                # print("Item", item)
                 buffer = ""
+
+    return []
 
 
 def read_with_rust(path: str) -> list[Item]:
@@ -137,16 +139,13 @@ def read_with_rust(path: str) -> list[Item]:
 
 def main():
     file_path = "output.json"
-    item_count_to_write = 20
+    item_count_to_write = 20000
 
-    read_python_chunked(file_path, 10)
-    return
-
-    start_write = perf_counter()
+    start_write_rust = perf_counter()
     file_size = write_with_rust(file_path, item_count_to_write)
-    end_write = perf_counter()
-    duration_write = end_write - start_write
-    print(f"Rust wrote {file_size} to {file_path} after {duration_write}s")
+    end_write_rust = perf_counter()
+    duration_write_rust = end_write_rust - start_write_rust
+    print(f"Rust wrote {file_size} to {file_path} after {duration_write_rust}s")
 
     start_write_python = perf_counter()
     file_size = write_with_python(file_path, item_count_to_write)
@@ -165,6 +164,18 @@ def main():
     end_python = perf_counter()
     duration_python = end_python - start_python
     print(f"Python read {len(items)} after {duration_python}s")
+
+    start_chunked_read_rust = perf_counter()
+    items = read_rust_chunked(file_path, 20)
+    end_chunked_read_rust = perf_counter()
+    chunked_read_duration_rust = end_chunked_read_rust - start_chunked_read_rust
+    print(f"Rust read {len(items)} after {chunked_read_duration_rust}s (chunked)")
+
+    start_chunked_read_python = perf_counter()
+    items = read_python_chunked(file_path, 20)
+    end_chunked_read_python = perf_counter()
+    chunked_read_duration_python = end_chunked_read_python - start_chunked_read_python
+    print(f"Python read {len(items)} after {chunked_read_duration_python}s (chunked)")
 
 
 if __name__ == "__main__":

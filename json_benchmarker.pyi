@@ -7,6 +7,7 @@ __all__ = [
     "Item",
     "generate_random_json",
     "read_json",
+    "read_rust_chunked",
 ]
 
 @typing.final
@@ -23,4 +24,6 @@ class Item:
 def generate_random_json(path: builtins.str, count: builtins.int) -> builtins.int: ...
 
 def read_json(path: builtins.str) -> builtins.list[Item]: ...
+
+def read_rust_chunked(path: builtins.str, limit: builtins.int) -> builtins.list[Item]: ...
 
