@@ -40,14 +40,13 @@ def write_with_python(path: str, count: int) -> str:
     """
     items: list[dict[str, str | int]] = []
 
-    with open(path, "wb") as file:
+    with open(path, "w") as file:
         for i in range(count):
             # Making an item here to mimic the Rust logic and ensure each parameter has correct typing
             item = Item(i, f"User {i}", f"A description for user {i}")
             items.append({"id": item.id, "name": item.name, "description": item.description})
 
-        json_bytes = json.dumps(items, separators=(",", ":")).encode("utf-8")
-        file.write(json_bytes)
+        json.dump(items, file, separators=(",", ":"))
 
     file_size = os.path.getsize(path)
     return humanize.naturalsize(file_size)
@@ -91,6 +90,37 @@ def read_with_python(path: str) -> list[Item]:
     return items
 
 
+def read_python_chunked(path: str, limit: int) -> list[Item]:
+    """
+    Butchered implementation of https://github.com/ICRAR/ijson/blob/master/src/ijson/backends/python.py
+    """
+    with open(path) as file:
+        buffer = ""
+        is_within_item = False
+
+        while True:
+            char = file.read(1)
+
+            if char == "":
+                # End of file
+                break
+
+            if char == "{":
+                is_within_item = True
+
+            if not is_within_item:
+                continue
+
+            buffer += char
+
+            if char == "}":
+                is_within_item = False
+                item_json = json.loads(buffer)
+                item = item_from_dict(item_json)
+                print("Item", item)
+                buffer = ""
+
+
 def read_with_rust(path: str) -> list[Item]:
     """
     Reads a given file and parses each JSON object as an Item, using the Rust binding.
@@ -107,7 +137,10 @@ def read_with_rust(path: str) -> list[Item]:
 
 def main():
     file_path = "output.json"
-    item_count_to_write = 2000000
+    item_count_to_write = 20
+
+    read_python_chunked(file_path, 10)
+    return
 
     start_write = perf_counter()
     file_size = write_with_rust(file_path, item_count_to_write)
