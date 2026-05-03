@@ -1,5 +1,6 @@
 import json
 import os
+from io import open
 from time import perf_counter
 from typing import Any
 
@@ -82,8 +83,7 @@ def read_with_python(path: str) -> list[Item]:
     items: list[Item] = []
 
     with open(path) as file:
-        contents = file.read()
-        data = json.loads(contents)
+        data = json.load(file)
 
         for item in data:
             items.append(item_from_dict(item))
