@@ -141,41 +141,41 @@ def main():
     file_path = "output.json"
     item_count_to_write = 20000
 
-    start_write_rust = perf_counter()
+    start = perf_counter()
     file_size = write_with_rust(file_path, item_count_to_write)
-    end_write_rust = perf_counter()
-    duration_write_rust = end_write_rust - start_write_rust
-    print(f"Rust wrote {file_size} to {file_path} after {duration_write_rust}s")
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust wrote {file_size} to {file_path} after {duration}s")
 
-    start_write_python = perf_counter()
+    start = perf_counter()
     file_size = write_with_python(file_path, item_count_to_write)
-    end_write_python = perf_counter()
-    duration_write_python = end_write_python - start_write_python
-    print(f"Python wrote {file_size} to {file_path} after {duration_write_python}s")
+    end = perf_counter()
+    duration = end - start
+    print(f"Python wrote {file_size} to {file_path} after {duration}s")
 
-    start_rust = perf_counter()
+    start = perf_counter()
     items = read_with_rust(file_path)
-    end_rust = perf_counter()
-    duration_rust = end_rust - start_rust
-    print(f"Rust read {len(items)} after {duration_rust}s")
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust read {len(items)} after {duration}s")
 
-    start_python = perf_counter()
+    start = perf_counter()
     items = read_with_python(file_path)
-    end_python = perf_counter()
-    duration_python = end_python - start_python
-    print(f"Python read {len(items)} after {duration_python}s")
+    end = perf_counter()
+    duration = end - start
+    print(f"Python read {len(items)} after {duration}s")
 
-    start_chunked_read_rust = perf_counter()
+    start = perf_counter()
     items = read_rust_chunked(file_path, 20)
-    end_chunked_read_rust = perf_counter()
-    chunked_read_duration_rust = end_chunked_read_rust - start_chunked_read_rust
-    print(f"Rust read {len(items)} after {chunked_read_duration_rust}s (chunked)")
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust read {len(items)} after {duration}s (chunked)")
 
-    start_chunked_read_python = perf_counter()
+    start = perf_counter()
     items = read_python_chunked(file_path, 20)
-    end_chunked_read_python = perf_counter()
-    chunked_read_duration_python = end_chunked_read_python - start_chunked_read_python
-    print(f"Python read {len(items)} after {chunked_read_duration_python}s (chunked)")
+    end = perf_counter()
+    duration = end - start
+    print(f"Python read {len(items)} after {duration}s (chunked)")
 
 
 if __name__ == "__main__":
