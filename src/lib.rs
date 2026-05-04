@@ -1,3 +1,4 @@
+mod chunked_reader;
 mod data;
 
 use std::{
@@ -9,6 +10,7 @@ use pyo3::{exceptions::PyValueError, prelude::*};
 use pyo3_stub_gen::define_stub_info_gatherer;
 use pyo3_stub_gen_derive::gen_stub_pyfunction;
 
+use chunked_reader::ChunkedReader;
 use data::Item;
 
 #[derive(thiserror::Error, Debug)]
@@ -60,6 +62,16 @@ pub fn read_json(path: &str) -> Result<Vec<Item>, Error> {
     }
 
     Ok(items.unwrap())
+}
+#[gen_stub_pyfunction]
+#[pyfunction]
+pub fn read_rust_chunked_using_class(path: &str, limit: usize) -> Result<ChunkedReader, Error> {
+    let file = match File::open(path) {
+        Ok(file) => file,
+        Err(e) => return Err(Error::IoError(e)),
+    };
+
+    Ok(ChunkedReader::new(file, limit))
 }
 
 #[gen_stub_pyfunction]
@@ -162,7 +174,9 @@ fn json_benchmarker(m: &Bound<'_, PyModule>) -> PyResult<()> {
     m.add_function(wrap_pyfunction!(read_json, m)?)?;
     m.add_function(wrap_pyfunction!(generate_random_json, m)?)?;
     m.add_function(wrap_pyfunction!(read_rust_chunked, m)?)?;
+    m.add_function(wrap_pyfunction!(read_rust_chunked_using_class, m)?)?;
     m.add_class::<Item>()?;
+    m.add_class::<ChunkedReader>()?;
 
     Ok(())
 }

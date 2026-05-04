@@ -5,7 +5,7 @@ from time import perf_counter
 from typing import Any
 
 import humanize
-from json_benchmarker import read_json, generate_random_json, read_rust_chunked, Item
+from json_benchmarker import read_json, generate_random_json, read_rust_chunked, read_rust_chunked_using_class, Item
 
 
 def item_from_dict(data: dict[str, Any]) -> Item:
@@ -183,6 +183,15 @@ def main():
     end = perf_counter()
     duration = end - start
     print(f"Python read {len(items)} after {duration}s (chunked)")
+
+    chunked_reader = read_rust_chunked_using_class(file_path, 20)
+
+    try:
+        items = next(chunked_reader)
+        for item in items:
+            print(item)
+    except StopIteration:
+        print("Reached the end")
 
 
 if __name__ == "__main__":
