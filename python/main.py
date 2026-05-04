@@ -98,6 +98,8 @@ def read_python_chunked(path: str, limit: int) -> list[Item]:
         buffer = ""
         is_within_item = False
 
+        items: list[Item] = []
+
         while True:
             char = file.read(1)
 
@@ -117,7 +119,12 @@ def read_python_chunked(path: str, limit: int) -> list[Item]:
                 is_within_item = False
                 item_json = json.loads(buffer)
                 item = item_from_dict(item_json)
-                # print("Item", item)
+                items.append(item)
+
+                if len(items) == limit:
+                    # TODO(alec): Yield items at this stage
+                    items.clear()
+
                 buffer = ""
 
     return []

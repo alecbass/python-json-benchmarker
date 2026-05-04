@@ -73,6 +73,7 @@ pub fn read_rust_chunked(path: &str, limit: i32) -> Result<Vec<Item>, Error> {
     let mut reader = BufReader::new(file);
     let mut buffer = Vec::<u8>::new();
     let mut is_within_item = false;
+    let mut items = Vec::<Item>::new();
 
     loop {
         let mut char_buffer = [0; 1];
@@ -110,6 +111,13 @@ pub fn read_rust_chunked(path: &str, limit: i32) -> Result<Vec<Item>, Error> {
             }
 
             let item: Item = item_json.unwrap();
+            items.push(item);
+
+            if items.len() == limit as usize {
+                // TODO(alec): Yield items at this stage
+                items.clear();
+            }
+
             buffer.clear();
         }
     }
