@@ -74,7 +74,6 @@ impl Iterator for ChunkedReader {
                 let item_json = serde_json::from_slice(&buffer);
 
                 if let Err(_e) = item_json {
-                    // return Err(Error::JsonError(e));
                     return None;
                 }
 
@@ -82,7 +81,6 @@ impl Iterator for ChunkedReader {
                 items.push(item);
 
                 if items.len() == self.limit {
-                    // TODO(alec): Yield items at this stage
                     return Some(items);
                 }
 

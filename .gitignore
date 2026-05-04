@@ -1,5 +1,6 @@
 .direnv/
 target/
+__pycache__/
 
 # Testing data
 output.json

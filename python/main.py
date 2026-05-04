@@ -2,29 +2,12 @@ import json
 import os
 from io import open
 from time import perf_counter
-from typing import Any
 
 import humanize
 from json_benchmarker import read_json, generate_random_json, read_rust_chunked, read_rust_chunked_using_class, Item
 
-
-def item_from_dict(data: dict[str, Any]) -> Item:
-    """
-    Transforms a dictionaty of items into an Item.
-
-    Args:
-        data: The dictionary
-    Raises:
-        ValueError: If the dictionary is of invalid format, if the id field is not an integer
-    """
-    id = int(data.pop("id"))
-    name = data.pop("name")
-    description = data.pop("description")
-
-    if any(item is None for item in [id, name, description]):
-        raise ValueError("Received invalid item")
-
-    return Item(id, name, description)
+from chunked_reader import PythonChunkedReader
+from utils import item_from_dict
 
 
 def write_with_python(path: str, count: int) -> str:
@@ -97,7 +80,6 @@ def read_python_chunked(path: str, limit: int) -> list[Item]:
     with open(path) as file:
         buffer = ""
         is_within_item = False
-
         items: list[Item] = []
 
         while True:
@@ -184,14 +166,35 @@ def main():
     duration = end - start
     print(f"Python read {len(items)} after {duration}s (chunked)")
 
+    start = perf_counter()
     chunked_reader = read_rust_chunked_using_class(file_path, 20)
 
-    try:
-        items = next(chunked_reader)
-        for item in items:
-            print(item)
-    except StopIteration:
-        print("Reached the end")
+    while True:
+        try:
+            items = next(chunked_reader)
+            # for item in items:
+            #     print(item)
+        except StopIteration:
+            print("Reached the end")
+            break
+
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust chunked read using class took {duration}s")
+
+    start = perf_counter()
+    python_chunked_reader = PythonChunkedReader.create(file_path, 20)
+    while True:
+        try:
+            items = next(python_chunked_reader)
+            # for item in items:
+            #     print(item)
+        except StopIteration:
+            print("Reached the end")
+            break
+    end = perf_counter()
+    duration = end - start
+    print(f"Python chunked read using class took {duration}s")
 
 
 if __name__ == "__main__":
