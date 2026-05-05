@@ -6,10 +6,9 @@ import typing
 __all__ = [
     "ChunkedReader",
     "Item",
+    "create_chunked_reader",
     "generate_random_json",
     "read_json",
-    "read_rust_chunked",
-    "read_rust_chunked_using_class",
 ]
 
 @typing.final
@@ -27,11 +26,9 @@ class Item:
     def __str__(self) -> builtins.str: ...
     def __new__(cls, id: builtins.int, name: builtins.str, description: builtins.str) -> Item: ...
 
+def create_chunked_reader(path: builtins.str, limit: builtins.int) -> jsonChunkedReader: ...
+
 def generate_random_json(path: builtins.str, count: builtins.int) -> builtins.int: ...
 
 def read_json(path: builtins.str) -> builtins.list[Item]: ...
-
-def read_rust_chunked(path: builtins.str, limit: builtins.int) -> builtins.list[Item]: ...
-
-def read_rust_chunked_using_class(path: builtins.str, limit: builtins.int) -> jsonChunkedReader: ...
 
