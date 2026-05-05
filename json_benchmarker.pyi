@@ -8,6 +8,7 @@ __all__ = [
     "Item",
     "create_chunked_reader",
     "generate_random_json",
+    "incremental_write",
     "read_json",
 ]
 
@@ -29,6 +30,8 @@ class Item:
 def create_chunked_reader(path: builtins.str, limit: builtins.int) -> jsonChunkedReader: ...
 
 def generate_random_json(path: builtins.str, count: builtins.int) -> builtins.int: ...
+
+def incremental_write(path: builtins.str, count: builtins.int) -> builtins.int: ...
 
 def read_json(path: builtins.str) -> builtins.list[Item]: ...
 

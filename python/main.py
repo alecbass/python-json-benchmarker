@@ -4,7 +4,7 @@ from io import open
 from time import perf_counter
 
 import humanize
-from json_benchmarker import read_json, generate_random_json, create_chunked_reader, Item
+from json_benchmarker import read_json, generate_random_json, create_chunked_reader, incremental_write, Item
 
 from chunked_reader import PythonChunkedReader
 from utils import item_from_dict
@@ -87,9 +87,11 @@ def read_with_rust(path: str) -> list[Item]:
     return read_json(path)
 
 
-def incremental_write(path: str, count: int) -> None:
+def incremental_write_python(path: str, count: int) -> None:
     with open(path, "w") as file:
+        # Start the array
         file.write("[")
+
         for i in range(count):
             # Making an item here to mimic the Rust logic and ensure each parameter has correct typing
             item = Item(i, f"User {i}", f"A description for user {i}")
@@ -102,6 +104,7 @@ def incremental_write(path: str, count: int) -> None:
             if not is_last:
                 file.write(",")
 
+        # End the array
         file.write("]")
 
 
@@ -163,7 +166,17 @@ def main():
     duration = end - start
     print(f"Python chunked read using class took {duration}s")
 
-    incremental_write(file_path, 2)
+    start = perf_counter()
+    incremental_write_python(file_path, 9999999)
+    end = perf_counter()
+    duration = end - start
+    print(f"Python incremental write took {duration}s")
+
+    start = perf_counter()
+    incremental_write(file_path, 9999999)
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust incremental write took {duration}s")
 
 
 if __name__ == "__main__":
