@@ -20,6 +20,7 @@ impl ChunkedReader {
     // Create a new method, deliberately Rust-only so as to use the File struct
     pub fn new(file: std::fs::File, limit: usize) -> Self {
         let reader = BufReader::new(file);
+
         Self {
             reader,
             limit,

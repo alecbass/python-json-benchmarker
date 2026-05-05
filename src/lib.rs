@@ -1,5 +1,6 @@
 mod chunked_reader;
 mod data;
+mod error;
 
 use std::{
     fs::{File, metadata},
@@ -12,15 +13,7 @@ use pyo3_stub_gen_derive::gen_stub_pyfunction;
 
 use chunked_reader::ChunkedReader;
 use data::Item;
-
-#[derive(thiserror::Error, Debug)]
-pub enum Error {
-    #[error("Failed to read or write file")]
-    IoError(#[from] std::io::Error),
-
-    #[error("Error parsing JSON")]
-    JsonError(#[from] serde_json::Error),
-}
+use error::Error;
 
 impl From<Error> for PyErr {
     fn from(e: Error) -> Self {
@@ -63,6 +56,7 @@ pub fn read_json(path: &str) -> Result<Vec<Item>, Error> {
 
     Ok(items.unwrap())
 }
+
 #[gen_stub_pyfunction]
 #[pyfunction]
 pub fn create_chunked_reader(path: &str, limit: usize) -> Result<ChunkedReader, Error> {
@@ -108,7 +102,7 @@ pub fn generate_random_json(path: &str, count: i32) -> Result<u64, Error> {
 
 #[gen_stub_pyfunction]
 #[pyfunction]
-pub fn incremental_write(path: &str, count: i32) -> Result<u64, Error> {
+pub fn incremental_write(path: &str, count: i32) -> Result<(), Error> {
     let file = match File::create(path) {
         Ok(file) => file,
         Err(e) => return Err(Error::IoError(e)),
@@ -143,12 +137,7 @@ pub fn incremental_write(path: &str, count: i32) -> Result<u64, Error> {
         return Err(Error::IoError(e));
     }
 
-    let file_details = match metadata(path) {
-        Ok(details) => details,
-        Err(e) => return Err(Error::IoError(e)),
-    };
-
-    Ok(file_details.len())
+    Ok(())
 }
 
 #[pymodule]

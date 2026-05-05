@@ -87,7 +87,7 @@ def read_with_rust(path: str) -> list[Item]:
     return read_json(path)
 
 
-def incremental_write_python(path: str, count: int) -> str:
+def incremental_write_python(path: str, count: int) -> None:
     with open(path, "w") as file:
         # Start the array
         file.write("[")
@@ -97,7 +97,7 @@ def incremental_write_python(path: str, count: int) -> str:
             item = Item(i, f"User {i}", f"A description for user {i}")
             item_dict = {"id": item.id, "name": item.name, "description": item.description}
 
-            json.dump(item_dict, file)
+            json.dump(item_dict, file, separators=(",", ":"))
 
             is_last = i == count - 1
 
@@ -106,9 +106,6 @@ def incremental_write_python(path: str, count: int) -> str:
 
         # End the array
         file.write("]")
-
-    file_size = os.path.getsize(path)
-    return humanize.naturalsize(file_size)
 
 
 def main():
@@ -140,18 +137,20 @@ def main():
     print(f"Python read {len(items)} after {duration}s")
 
     start = perf_counter()
-    file_size = incremental_write_python(file_path, 9999999)
-    print(file_size)
+    incremental_write_python(file_path, 9999999)
     end = perf_counter()
     duration = end - start
     print(f"Python incremental write took {duration}s")
+    file_size = humanize.naturalsize(os.path.getsize(file_path))
+    print(f"Wrote {file_size}")
 
     start = perf_counter()
-    file_size = incremental_write(file_path, 9999999)
-    print(humanize.naturalsize(file_size))
+    incremental_write(file_path, 9999999)
     end = perf_counter()
     duration = end - start
     print(f"Rust incremental write took {duration}s")
+    file_size = humanize.naturalsize(os.path.getsize(file_path))
+    print(f"Wrote {file_size}")
 
     start = perf_counter()
     chunked_reader = create_chunked_reader(file_path, 20)
