@@ -16,6 +16,14 @@ class PythonChunkedReader:
         self.limit = limit
 
     def __next__(self) -> list[Item]:
+        """
+        Butchered implementation of https://github.com/ICRAR/ijson/blob/master/src/ijson/backends/python.py
+
+        This function is a war crime. It assumes that the JSON will be valid within and {} delimeters. It reads through the
+        file one at a time which hopefully the buffered reader helps with, but still isn't ideal.
+
+        If you saw the talk and read this code, message me and I'll buy you a coffee.
+        """
         buffer = ""
         is_within_item = False
         items: list[Item] = []

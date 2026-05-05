@@ -76,7 +76,17 @@ def read_with_python(path: str) -> list[Item]:
 def read_python_chunked(path: str, limit: int) -> list[Item]:
     """
     Butchered implementation of https://github.com/ICRAR/ijson/blob/master/src/ijson/backends/python.py
+
+    Args:
+        path: The file path to read from
+        limit: How many items to oad for each chunk
+    Returns:
+        A list of retrieved items
+    Raises:
+        ValueError: If a JSON item is incorrect
     """
+    all_items: list[Item] = []
+
     with open(path) as file:
         buffer = ""
         is_within_item = False
@@ -104,12 +114,12 @@ def read_python_chunked(path: str, limit: int) -> list[Item]:
                 items.append(item)
 
                 if len(items) == limit:
-                    # TODO(alec): Yield items at this stage
+                    all_items.extend(items)
                     items.clear()
 
                 buffer = ""
 
-    return []
+    return items
 
 
 def read_with_rust(path: str) -> list[Item]:
