@@ -115,7 +115,7 @@ pub fn incremental_write(path: &str, count: i32) -> Result<u64, Error> {
     };
 
     let mut writer = BufWriter::new(file);
-    if let Err(e) = writer.write(&[b'{']) {
+    if let Err(e) = writer.write(&[b'[']) {
         return Err(Error::IoError(e));
     }
 
