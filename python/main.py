@@ -139,19 +139,19 @@ def main():
     duration = end - start
     print(f"Python read {len(items)} after {duration}s")
 
-    start = perf_counter()
-    file_size = incremental_write_python(file_path, 9)
-    print(file_size)
-    end = perf_counter()
-    duration = end - start
-    print(f"Python incremental write took {duration}s")
-
     # start = perf_counter()
-    # file_size = incremental_write(file_path, 9)
-    # print(humanize.naturalsize(file_size))
+    # file_size = incremental_write_python(file_path, 9)
+    # print(file_size)
     # end = perf_counter()
     # duration = end - start
-    # print(f"Rust incremental write took {duration}s")
+    # print(f"Python incremental write took {duration}s")
+
+    start = perf_counter()
+    file_size = incremental_write(file_path, 9)
+    print(humanize.naturalsize(file_size))
+    end = perf_counter()
+    duration = end - start
+    print(f"Rust incremental write took {duration}s")
 
     start = perf_counter()
     chunked_reader = create_chunked_reader(file_path, 20)
@@ -159,8 +159,8 @@ def main():
     while True:
         try:
             items = next(chunked_reader)
-            for item in items:
-                print(item)
+            # for item in items:
+            #     print(item)
         except StopIteration:
             print("Reached the end")
             break
@@ -174,8 +174,8 @@ def main():
     while True:
         try:
             items = next(python_chunked_reader)
-            for item in items:
-                print(item)
+            # for item in items:
+            #     print(item)
         except StopIteration:
             print("Reached the end")
             break

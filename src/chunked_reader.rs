@@ -13,13 +13,18 @@ use super::data::Item;
 pub struct ChunkedReader {
     reader: BufReader<File>,
     limit: usize,
+    is_at_end: bool,
 }
 
 impl ChunkedReader {
     // Create a new method, deliberately Rust-only so as to use the File struct
     pub fn new(file: std::fs::File, limit: usize) -> Self {
         let reader = BufReader::new(file);
-        Self { reader, limit }
+        Self {
+            reader,
+            limit,
+            is_at_end: false,
+        }
     }
 }
 
@@ -35,24 +40,33 @@ impl Iterator for ChunkedReader {
     type Item = Vec<Item>;
 
     // Iterates through a few characters of the file to create a given number of Items from JSON
-    // Returns None if no more items could be read
+    // If the end of the file is reached, the last chunk of items is returned.
+    //
+    // The next call returns None, which in the Python world raises a StopIteration.
     fn next(&mut self) -> Option<Self::Item> {
         let mut buffer = Vec::<u8>::new();
         let mut items = Vec::<Item>::new();
         let mut is_within_item = false;
+
+        if self.is_at_end {
+            return None;
+        }
 
         loop {
             let mut char_buffer = [0; 1];
             let read_result = self.reader.read(&mut char_buffer);
 
             if let Err(_e) = read_result {
-                // return Err(Error::IoError(e));
+                // The read failed, stop iterating
+                self.is_at_end = true;
                 return None;
             }
 
             let is_last = read_result.unwrap() == 0;
 
             if is_last {
+                // Reached the end of the file, make the next read end the iterator
+                self.is_at_end = true;
                 break;
             }
 
@@ -81,6 +95,7 @@ impl Iterator for ChunkedReader {
                 items.push(item);
 
                 if items.len() == self.limit {
+                    // Yield this chunk
                     return Some(items);
                 }
 
@@ -88,6 +103,6 @@ impl Iterator for ChunkedReader {
             }
         }
 
-        None
+        Some(items)
     }
 }

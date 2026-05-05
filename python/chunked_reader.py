@@ -60,7 +60,7 @@ class PythonChunkedReader:
                 items.append(item)
 
                 if len(items) == self.limit:
-                    # Yield items at this stage
+                    # Yield this chunk
                     return items
 
                 buffer = ""
