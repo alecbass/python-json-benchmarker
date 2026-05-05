@@ -10,14 +10,19 @@ from utils import item_from_dict
 class PythonChunkedReader:
     reader: TextIOWrapper
     limit: int
+    _is_at_end: bool
 
     def __init__(self, reader: TextIOWrapper, limit: int) -> None:
         self.reader = reader
         self.limit = limit
+        self._is_at_end = False
 
     def __next__(self) -> list[Item]:
         """
         Butchered implementation of https://github.com/ICRAR/ijson/blob/master/src/ijson/backends/python.py
+
+        It reads and creates Item instances until it reaches the end of the file. Once that happens, the next call will
+        raise StopIteration.
 
         This function is a war crime. It assumes that the JSON will be valid within and {} delimeters. It reads through the
         file one at a time which hopefully the buffered reader helps with, but still isn't ideal.
@@ -28,13 +33,17 @@ class PythonChunkedReader:
         is_within_item = False
         items: list[Item] = []
 
+        if self._is_at_end:
+            raise StopIteration()
+
         while True:
             char = self.reader.read(1)
 
             if char == "":
                 # Reached the end of the file
                 self.reader.close()
-                raise StopIteration()
+                self._is_at_end = True
+                return items
 
             if char == "{":
                 is_within_item = True
@@ -51,7 +60,7 @@ class PythonChunkedReader:
                 items.append(item)
 
                 if len(items) == self.limit:
-                    # TODO(alec): Yield items at this stage
+                    # Yield items at this stage
                     return items
 
                 buffer = ""
