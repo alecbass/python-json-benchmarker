@@ -139,15 +139,15 @@ def main():
     duration = end - start
     print(f"Python read {len(items)} after {duration}s")
 
-    # start = perf_counter()
-    # file_size = incremental_write_python(file_path, 9)
-    # print(file_size)
-    # end = perf_counter()
-    # duration = end - start
-    # print(f"Python incremental write took {duration}s")
+    start = perf_counter()
+    file_size = incremental_write_python(file_path, 9999999)
+    print(file_size)
+    end = perf_counter()
+    duration = end - start
+    print(f"Python incremental write took {duration}s")
 
     start = perf_counter()
-    file_size = incremental_write(file_path, 9)
+    file_size = incremental_write(file_path, 9999999)
     print(humanize.naturalsize(file_size))
     end = perf_counter()
     duration = end - start
