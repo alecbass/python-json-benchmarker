@@ -44,6 +44,7 @@
           bash
           direnv
           python
+          opencode
         ] ++ rustDeps ++ editorDeps;
       in
       {
