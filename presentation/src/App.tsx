@@ -309,7 +309,7 @@ with open('large_file.json', 'r') as file:
       <Slide>
         <p>Disadvantages: Typing</p>
         <p>Option one: Write them yourself</p>
-        <p>Option two: Use a library (this one uses pyo3-stub-gen</p>
+        <p>Option two: Use a library (this one uses pyo3-stub-gen)</p>
         {/* TODO(alec): Show Rust struct and impl block and the json_benchmarker.pyi file */}
       </Slide>
 
