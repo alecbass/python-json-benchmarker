@@ -161,7 +161,6 @@ def main():
             # for item in items:
             #     print(item)
         except StopIteration:
-            print("Reached the end")
             break
 
     end = perf_counter()
@@ -176,7 +175,6 @@ def main():
             # for item in items:
             #     print(item)
         except StopIteration:
-            print("Reached the end")
             break
     end = perf_counter()
     duration = end - start
