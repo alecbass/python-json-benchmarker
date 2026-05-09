@@ -302,7 +302,15 @@ with open('large_file.json', 'r') as file:
       <Slide>
         <p>Disadvantages: Typing</p>
         <p>This one is specific to Maturin and Pyo3</p>
+        <p>How do you write type hints for Python developers?</p>
         {/* TODO(alec): Show python double() function example and how type hints don't actually do anything */}
+      </Slide>
+
+      <Slide>
+        <p>Disadvantages: Typing</p>
+        <p>Option one: Write them yourself</p>
+        <p>Option two: Use a library (this one uses pyo3-stub-gen</p>
+        {/* TODO(alec): Show Rust struct and impl block and the json_benchmarker.pyi file */}
       </Slide>
 
       <Slide>
